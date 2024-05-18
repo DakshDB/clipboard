@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
+import 'firebase_options.dart';
+
 const Color paynesGray = Color(0xFF5F6978);
 const Color oxfordBlue = Color(0xFF0B192F);
 const Color teal = Color(0xFF64FFDA);
@@ -11,14 +13,6 @@ const Color platinum = Color(0xFFDEE0E3);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  FirebaseOptions firebaseOptions = const FirebaseOptions(
-    apiKey: String.fromEnvironment('FIREBASE_API_KEY'),
-    authDomain: String.fromEnvironment('FIREBASE_AUTH_DOMAIN'),
-    projectId: String.fromEnvironment('FIREBASE_PROJECT_ID'),
-    storageBucket: String.fromEnvironment('FIREBASE_STORAGE_BUCKET'),
-    messagingSenderId: String.fromEnvironment('FIREBASE_MESSAGING_SENDER_ID'),
-    appId: String.fromEnvironment('FIREBASE_APP_ID'),
-  );
   await Firebase.initializeApp(options: firebaseOptions);
   runApp(const MyApp());
 }
