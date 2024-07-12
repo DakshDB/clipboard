@@ -1,6 +1,7 @@
 import 'package:clipboard/constants/themes.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
@@ -15,7 +16,6 @@ class _MyHomePageState extends State<MyHomePage> {
   Map<String, Map<String, dynamic>> _clips = {}; // Change the value type to Map
   final Map<String, Map<String, dynamic>> _newClips = {}; // Change the type to Map
   final List<String> _deletedClips = [];
-  bool _isSaving = false;
 
   final TextEditingController _controller = TextEditingController();
 
@@ -28,6 +28,12 @@ class _MyHomePageState extends State<MyHomePage> {
     for (final doc in querySnapshot.docs) {
       _clips[doc.id] = doc.data() as Map<String, dynamic>; // Fetch the entire document data
     }
+
+    // Sort the clips by created_at field
+    _clips = Map<String, Map<String, dynamic>>.fromEntries(
+      _clips.entries.toList()
+        ..sort((a, b) => (b.value['created_at'] as Timestamp).compareTo(a.value['created_at'] as Timestamp)),
+    );
   }
 
   Future<void> saveClips() async {
@@ -82,23 +88,58 @@ class _MyHomePageState extends State<MyHomePage> {
                         if (clipData['created_at'] != null) {
                           createdAt = DateFormat('MMM d, y H:mm').format(clipData['created_at'].toDate());
                         }
-                        return ListTile(
-                          title: Text(
-                            clipData['clip'],
-                            style: const TextStyle(color: Colors.black),
-                          ),
-                          subtitle: Text(createdAt),
-                          // Display the timestamp or default message
-                          trailing: IconButton(
-                            color: paynesGray,
-                            icon: const Icon(Icons.delete),
-                            onPressed: () {
-                              setState(() {
-                                _deletedClips.add(id);
-                                _clips.remove(id);
-                              });
-                            },
-                          ),
+                        return GestureDetector(
+                          onLongPress: () {
+                            Clipboard.setData(ClipboardData(text: clipData['clip']));
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Copied to clipboard'),
+                              ),
+                            );
+                          },
+                          child: ListTile(
+                              title: Text(
+                                clipData['clip'],
+                                style: const TextStyle(color: Colors.black),
+                              ),
+                              subtitle: Text(createdAt),
+                              // Display the timestamp or default message
+                              trailing: IconButton(
+                                color: paynesGray,
+                                icon: const Icon(Icons.delete),
+                                onPressed: () async {
+                                  // Open the dialog to confirm deletion
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return AlertDialog(
+                                        title: const Text('Delete this clip?'),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                            child: const Text('No',
+                                                style: TextStyle(color: oxfordBlue, fontWeight: FontWeight.w400)),
+                                          ),
+                                          TextButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                _deletedClips.add(id);
+                                                _clips.remove(id);
+                                              });
+                                              Navigator.of(context).pop();
+                                            },
+                                            child: const Text('Yes',
+                                                style: TextStyle(color: oxfordBlue, fontWeight: FontWeight.w400)),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                  await saveClips();
+                                },
+                              )),
                         );
                       },
                     ),
@@ -106,7 +147,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   TextField(
                     controller: _controller,
                     style: const TextStyle(color: oxfordBlue),
-                    onSubmitted: (value) {
+                    onSubmitted: (value) async {
                       setState(() {
                         final newClip = {
                           'clip': value,
@@ -119,6 +160,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         _clips = {randomId: newClip, ..._clips};
                       });
                       _controller.clear();
+                      await saveClips();
                     },
                     decoration: const InputDecoration(
                       labelText: 'Add a new clip',
@@ -127,28 +169,20 @@ class _MyHomePageState extends State<MyHomePage> {
                 ],
               ),
             ),
-            const SizedBox(height: 20.0),
-            ElevatedButton(
-              onPressed: () async {
-                setState(() {
-                  _isSaving = true;
-                });
-                await saveClips();
-                setState(() {
-                  _isSaving = false;
-                });
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: teal,
-              ),
-              child: _isSaving
-                  ? const CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(oxfordBlue),
-                    )
-                  : const Text('Save', style: TextStyle(color: oxfordBlue)),
-            ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          setState(() {
+            fetchClips();
+          });
+        },
+        elevation: 10.0,
+        foregroundColor: platinum,
+        backgroundColor: oxfordBlue,
+        splashColor: Colors.transparent,
+        child: const Icon(Icons.refresh),
       ),
     );
   }
