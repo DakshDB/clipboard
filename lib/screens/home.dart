@@ -20,6 +20,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController _controller = TextEditingController();
 
   Future<void> fetchClips() async {
+    _clips.clear();
     final QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection('clips')
         .where('deleted_at', isNull: true)
@@ -123,12 +124,13 @@ class _MyHomePageState extends State<MyHomePage> {
                                                 style: TextStyle(color: oxfordBlue, fontWeight: FontWeight.w400)),
                                           ),
                                           TextButton(
-                                            onPressed: () {
+                                            onPressed: () async {
                                               setState(() {
                                                 _deletedClips.add(id);
                                                 _clips.remove(id);
                                               });
                                               Navigator.of(context).pop();
+                                              await saveClips();
                                             },
                                             child: const Text('Yes',
                                                 style: TextStyle(color: oxfordBlue, fontWeight: FontWeight.w400)),
@@ -137,7 +139,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                       );
                                     },
                                   );
-                                  await saveClips();
                                 },
                               )),
                         );
@@ -174,9 +175,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          setState(() {
-            fetchClips();
-          });
+          fetchClips().then((_) => setState(() {}));
         },
         elevation: 10.0,
         foregroundColor: platinum,
