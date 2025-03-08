@@ -1,13 +1,11 @@
 import 'package:clipboard/constants/themes.dart';
 import 'package:clipboard/controllers/group_controller.dart';
 import 'package:clipboard/controllers/page_controller.dart';
-import 'package:clipboard/widgets/bottom_navigation_bar.dart';
 import 'package:clipboard/widgets/clipboard_widget.dart';
 import 'package:clipboard/widgets/groups_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import '../controllers/clip_controller.dart';
 
 class MyHomePage extends ConsumerStatefulWidget {

@@ -7,7 +7,7 @@ channel = "stable"
 
 [build]
 command = """
-    flutter build web --release --web-renderer html \
+    flutter build web --release \
     --dart-define=FIREBASE_API_KEY=$FIREBASE_API_KEY \
     --dart-define=FIREBASE_AUTH_DOMAIN=$FIREBASE_AUTH_DOMAIN \
     --dart-define=FIREBASE_PROJECT_ID=$FIREBASE_PROJECT_ID \
