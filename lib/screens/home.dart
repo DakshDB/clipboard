@@ -35,16 +35,19 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
         appBar: AppBar(
           title: Padding(
             padding: const EdgeInsets.fromLTRB(0, 10, 0, 0), 
-          child: Consumer(builder: (context, ref, child) {
-            final selectedGroup = ref.watch(selectedGroupProvider);
-            return Text(selectedGroup?.name ?? 'Clipboard',
-                style:
-                    const TextStyle(
-                      color: Color.fromARGB(255, 255, 255, 255),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 24.0,
-                    ));
-          })),
+            child: Center(
+              child: Consumer(builder: (context, ref, child) {
+                final selectedGroup = ref.watch(selectedGroupProvider);
+                return Text(selectedGroup?.name ?? 'Clipboard',
+                    style:
+                        const TextStyle(
+                          color: Color.fromARGB(255, 255, 255, 255),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 24.0,
+                        ));
+              }),
+            ),
+          ),
           backgroundColor: Colors.transparent,
         ),
         body: Center(
@@ -61,57 +64,60 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
           ),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-        floatingActionButton: SizedBox(
-          width: width,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              FloatingActionButton(
-                onPressed: () {
-                  if (currentIndex == 0) {
-                    ref.read(pageControllerProvider.notifier).setPage(1);
-                  } else if (currentIndex == 1) {
-                    ref.read(pageControllerProvider.notifier).setPage(0);
-                  }
-                },
-                elevation: 10.0,
-                foregroundColor: platinum,
-                backgroundColor: oxfordBlue,
-                splashColor: Colors.transparent,
-                child: currentIndex == 0
-                    ? const Icon(Icons.content_paste)
-                    : const Icon(Icons.group),
-              ),
-              FloatingActionButton(
-                onPressed: () {
-                  ref.read(selectedGroupProvider.notifier).state = null;
-                  ref.read(clipProvider.notifier).fetchClips(ref);
-                  ref.read(pageControllerProvider.notifier).setPage(1);
-                },
-                elevation: 10.0,
-                foregroundColor: platinum,
-                backgroundColor: oxfordBlue,
-                splashColor: Colors.transparent,
-                child: const Icon(Icons.density_medium),
-              ),
-              
-              FloatingActionButton(
-                onPressed: () {
-                  if (currentIndex == 0) {
-                    ref.read(groupProvider.notifier).fetchGroups();
-                  }
-                  if (currentIndex == 1) {
+        floatingActionButton: MediaQuery.of(context).viewInsets.bottom > 0
+          ? null // Hide buttons when keyboard is open
+          : SizedBox(
+            width: width,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                FloatingActionButton(
+                  onPressed: () {
+                    if (currentIndex == 0) {
+                      ref.read(pageControllerProvider.notifier).setPage(1);
+                    } else if (currentIndex == 1) {
+                      ref.read(pageControllerProvider.notifier).setPage(0);
+                    }
+                  },
+                  elevation: 10.0,
+                  foregroundColor: platinum,
+                  backgroundColor: oxfordBlue,
+                  splashColor: Colors.transparent,
+                  child: currentIndex == 0
+                      ? const Icon(Icons.content_paste)
+                      : const Icon(Icons.group),
+                ),
+                FloatingActionButton(
+                  onPressed: () {
+                    ref.read(selectedGroupProvider.notifier).state = null;
                     ref.read(clipProvider.notifier).fetchClips(ref);
-                  }
-                },
-                elevation: 10.0,
-                foregroundColor: platinum,
-                backgroundColor: oxfordBlue,
-                splashColor: Colors.transparent,
-                child: const Icon(Icons.refresh),
-              ),
-            ],
+                    ref.read(pageControllerProvider.notifier).setPage(1);
+                  },
+                  elevation: 10.0,
+                  foregroundColor: platinum,
+                  backgroundColor: oxfordBlue,
+                  splashColor: Colors.transparent,
+                  child: const Icon(Icons.density_medium),
+                ),
+                
+                FloatingActionButton(
+                  onPressed: () {
+                    if (currentIndex == 0) {
+                      ref.read(groupProvider.notifier).fetchGroups();
+                    }
+                    if (currentIndex == 1) {
+                      ref.read(clipProvider.notifier).fetchClips(ref);
+                    }
+                  },
+                  elevation: 10.0,
+                  foregroundColor: platinum,
+                  backgroundColor: oxfordBlue,
+                  splashColor: Colors.transparent,
+                  child: const Icon(Icons.refresh),
+                ),
+              ],
+            ),
           ),
-        ));
+        );
   }
 }

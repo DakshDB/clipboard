@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
           bodyLarge: TextStyle(color: platinum),
         ),
       ),
-      home: const MyHomePage(),
+      home: const AuthChecker(),
     );
   }
 }
