@@ -1,4 +1,5 @@
 import 'package:clipboard/constants/themes.dart';
+import 'package:clipboard/screens/home.dart';
 import 'package:clipboard/services/auth_checker.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +28,7 @@ class MyApp extends StatelessWidget {
           bodyLarge: TextStyle(color: platinum),
         ),
       ),
-      home: const AuthChecker(),
+      home: const MyHomePage(),
     );
   }
 }

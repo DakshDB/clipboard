@@ -1,4 +1,9 @@
 import 'package:clipboard/constants/themes.dart';
+import 'package:clipboard/controllers/group_controller.dart';
+import 'package:clipboard/controllers/page_controller.dart';
+import 'package:clipboard/widgets/bottom_navigation_bar.dart';
+import 'package:clipboard/widgets/clipboard_widget.dart';
+import 'package:clipboard/widgets/groups_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,139 +18,102 @@ class MyHomePage extends ConsumerStatefulWidget {
 }
 
 class _MyHomePageState extends ConsumerState<MyHomePage> {
-  final TextEditingController _controller = TextEditingController();
-
   @override
   void initState() {
     super.initState();
     // Fetch clips when the widget initializes
-    Future.microtask(() => ref.read(clipProvider.notifier).fetchClips());
+    Future.microtask(() => ref.read(clipProvider.notifier).fetchClips(ref));
   }
 
   @override
   Widget build(BuildContext context) {
-    // Get clips from the provider
-    final clips = ref.watch(clipProvider);
-    
+    final currentIndex = ref.watch(pageControllerProvider);
     var width = MediaQuery.of(context).size.width * 0.75;
     if (width > 600) {
       width = 600;
     }
 
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Container(
-              width: width,
-              height: MediaQuery.of(context).size.height * 0.8,
-              padding: const EdgeInsets.all(20.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: clips.length,
-                      itemBuilder: (context, index) {
-                        final clip = clips[index];
-                        final createdAt = DateFormat('MMM d, y H:mm')
-                            .format(clip.createdAt.toDate());
-                        
-                        return GestureDetector(
-                          onLongPress: () {
-                            Clipboard.setData(ClipboardData(text: clip.content));
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Copied to clipboard'),
-                              ),
-                            );
-                          },
-                          child: ListTile(
-                            title: Text(
-                              clip.content,
-                              style: const TextStyle(color: Colors.black),
-                            ),
-                            subtitle: Text(createdAt),
-                            trailing: IconButton(
-                              color: paynesGray,
-                              icon: const Icon(Icons.delete),
-                              onPressed: () async {
-                                // Open the dialog to confirm deletion
-                                showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return AlertDialog(
-                                      title: const Text('Delete this clip?'),
-                                      actions: <Widget>[
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                          },
-                                          child: const Text('No',
-                                            style: TextStyle(
-                                              color: oxfordBlue, 
-                                              fontWeight: FontWeight.w400
-                                            )
-                                          ),
-                                        ),
-                                        TextButton(
-                                          onPressed: () async {
-                                            Navigator.of(context).pop();
-                                            await ref.read(clipProvider.notifier)
-                                                .deleteClip(clip.id);
-                                          },
-                                          child: const Text('Yes',
-                                            style: TextStyle(
-                                              color: oxfordBlue, 
-                                              fontWeight: FontWeight.w400
-                                            )
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                              },
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  TextField(
-                    controller: _controller,
-                    style: const TextStyle(color: oxfordBlue),
-                    onSubmitted: (value) async {
-                      if (value.isNotEmpty) {
-                        await ref.read(clipProvider.notifier).addClip(value);
-                        _controller.clear();
-                      }
-                    },
-                    decoration: const InputDecoration(
-                      labelText: 'Add a new clip',
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+        appBar: AppBar(
+          title: Padding(
+            padding: const EdgeInsets.fromLTRB(0, 10, 0, 0), 
+          child: Consumer(builder: (context, ref, child) {
+            final selectedGroup = ref.watch(selectedGroupProvider);
+            return Text(selectedGroup?.name ?? 'Clipboard',
+                style:
+                    const TextStyle(
+                      color: Color.fromARGB(255, 255, 255, 255),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 24.0,
+                    ));
+          })),
+          backgroundColor: Colors.transparent,
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          ref.read(clipProvider.notifier).fetchClips();
-        },
-        elevation: 10.0,
-        foregroundColor: platinum,
-        backgroundColor: oxfordBlue,
-        splashColor: Colors.transparent,
-        child: const Icon(Icons.refresh),
-      ),
-    );
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              if (currentIndex == 0)
+                GroupsContainer(width: width)
+              else if (currentIndex == 1)
+                ClipboardContainer(width: width)
+              // else if (currentIndex == 2)
+              //   const Text('Profile'),
+            ],
+          ),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        floatingActionButton: SizedBox(
+          width: width,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              FloatingActionButton(
+                onPressed: () {
+                  if (currentIndex == 0) {
+                    ref.read(pageControllerProvider.notifier).setPage(1);
+                  } else if (currentIndex == 1) {
+                    ref.read(pageControllerProvider.notifier).setPage(0);
+                  }
+                },
+                elevation: 10.0,
+                foregroundColor: platinum,
+                backgroundColor: oxfordBlue,
+                splashColor: Colors.transparent,
+                child: currentIndex == 0
+                    ? const Icon(Icons.content_paste)
+                    : const Icon(Icons.group),
+              ),
+              FloatingActionButton(
+                onPressed: () {
+                  ref.read(selectedGroupProvider.notifier).state = null;
+                  ref.read(clipProvider.notifier).fetchClips(ref);
+                  ref.read(pageControllerProvider.notifier).setPage(1);
+                },
+                elevation: 10.0,
+                foregroundColor: platinum,
+                backgroundColor: oxfordBlue,
+                splashColor: Colors.transparent,
+                child: const Icon(Icons.density_medium),
+              ),
+              
+              FloatingActionButton(
+                onPressed: () {
+                  if (currentIndex == 0) {
+                    ref.read(groupProvider.notifier).fetchGroups();
+                  }
+                  if (currentIndex == 1) {
+                    ref.read(clipProvider.notifier).fetchClips(ref);
+                  }
+                },
+                elevation: 10.0,
+                foregroundColor: platinum,
+                backgroundColor: oxfordBlue,
+                splashColor: Colors.transparent,
+                child: const Icon(Icons.refresh),
+              ),
+            ],
+          ),
+        ));
   }
 }
