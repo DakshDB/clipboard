@@ -26,7 +26,7 @@ class AuthChecker extends ConsumerWidget {
           body: CircularProgressIndicator(),
         );
       },
-      error: (e, _s) {
+      error: (e, s) {
         return const LoginScreen();
       },
     );

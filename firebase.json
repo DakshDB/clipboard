@@ -1,1 +1,41 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"clipboard-cb","appId":"1:322051245302:android:d9637be35c34582d0858d7","fileOutput":"android/app/google-services.json"}},"ios":{"default":{"projectId":"clipboard-cb","appId":"1:322051245302:ios:1b5866e3eae822fb0858d7","uploadDebugSymbols":false,"fileOutput":"ios/Runner/GoogleService-Info.plist"}},"macos":{"default":{"projectId":"clipboard-cb","appId":"1:322051245302:ios:1b5866e3eae822fb0858d7","uploadDebugSymbols":false,"fileOutput":"macos/Runner/GoogleService-Info.plist"}},"dart":{"lib/firebase_options.dart":{"projectId":"clipboard-cb","configurations":{"android":"1:322051245302:android:d9637be35c34582d0858d7","ios":"1:322051245302:ios:1b5866e3eae822fb0858d7","macos":"1:322051245302:ios:1b5866e3eae822fb0858d7","web":"1:322051245302:web:bc30cba2efc319500858d7","windows":"1:322051245302:web:eb3b6610ddd309010858d7"}}}}}}
+{
+    "flutter": {
+        "platforms": {
+            "android": {
+                "default": {
+                    "projectId": "clipboard-cb",
+                    "appId": "1:322051245302:android:d9637be35c34582d0858d7",
+                    "fileOutput": "android/app/google-services.json"
+                }
+            },
+            "ios": {
+                "default": {
+                    "projectId": "clipboard-cb",
+                    "appId": "1:322051245302:ios:1b5866e3eae822fb0858d7",
+                    "uploadDebugSymbols": false,
+                    "fileOutput": "ios/Runner/GoogleService-Info.plist"
+                }
+            },
+            "macos": {
+                "default": {
+                    "projectId": "clipboard-cb",
+                    "appId": "1:322051245302:ios:1b5866e3eae822fb0858d7",
+                    "uploadDebugSymbols": false,
+                    "fileOutput": "macos/Runner/GoogleService-Info.plist"
+                }
+            },
+            "dart": {
+                "lib/firebase_options.dart": {
+                    "projectId": "clipboard-cb",
+                    "configurations": {
+                        "android": "1:322051245302:android:d9637be35c34582d0858d7",
+                        "ios": "1:322051245302:ios:1b5866e3eae822fb0858d7",
+                        "macos": "1:322051245302:ios:1b5866e3eae822fb0858d7",
+                        "web": "1:322051245302:web:bc30cba2efc319500858d7",
+                        "windows": "1:322051245302:web:eb3b6610ddd309010858d7"
+                    }
+                }
+            }
+        }
+    }
+}
